@@ -4,6 +4,8 @@
 
 https://agent-production-f6303733.up.railway.app
 
+Đây là API, không có giao diện web và không có route `/` (mở `/` trả `{"detail":"Not Found"}`). Mở thử: [/health](https://agent-production-f6303733.up.railway.app/health) và [/ready](https://agent-production-f6303733.up.railway.app/ready).
+
 ## Platform
 
 Railway. Project `k5-day14-deployment-bao`, environment `production`, service `agent` và Redis (cả hai Online). Deploy ID `1b17a3a9-e159-4582-bdf3-67f02c204094` (Active), deploy path `06-lab-complete` (build bằng `Dockerfile`, cấu hình `06-lab-complete/railway.toml`).

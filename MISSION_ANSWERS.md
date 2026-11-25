@@ -117,7 +117,7 @@ Kết quả test qua Nginx cổng **80**: `GET /health` trả 200 (response có 
 
 ### Trạng thái
 
-**Đã deploy.** Agent Part 6 chạy trên Railway với URL public **https://agent-production-f6303733.up.railway.app**.
+**Đã deploy.** Agent Part 6 chạy trên Railway với URL public **https://agent-production-f6303733.up.railway.app**. App là API, không có giao diện web và không có route `/` (mở `/` sẽ thấy `{"detail":"Not Found"}`, đó là hành vi đúng). Mở thử: [/health](https://agent-production-f6303733.up.railway.app/health) trả `{"status":"ok"}`, [/ready](https://agent-production-f6303733.up.railway.app/ready) trả 200. Giao diện Railway nằm trong ảnh, xem bên dưới.
 
 | Mục | Giá trị |
 |---|---|
