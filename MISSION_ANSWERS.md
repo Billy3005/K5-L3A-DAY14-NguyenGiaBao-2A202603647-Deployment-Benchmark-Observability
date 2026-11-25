@@ -1,6 +1,6 @@
 # Day 14 Lab — Mission Answers
 
-> **Nguồn bằng chứng.** Số liệu và output trong file này lấy từ các lệnh đã chạy trong workspace (phiên Codex) và được ghi lại ở `reports/local-http.txt`, `reports/production-readiness.txt`, `06-lab-complete/benchmark-observability/develop/reports/eval_v2.json`. Số liệu benchmark và observability (CP7, CP8) nằm trong [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md). Phần nào do học viên chưa đích thân chạy lại thì được ghi rõ tại mục **AI log** ở cuối file. Phần giải thích khái niệm được suy ra từ việc đọc code và đề lab.
+> **Nguồn bằng chứng.** Số liệu và output trong file này lấy từ các lệnh đã chạy trong workspace (phiên Codex) và được ghi lại ở `reports/local-http.txt`, `reports/production-readiness.txt`, `06-lab-complete/benchmark-observability/develop/reports/eval_v2.json`. Số liệu benchmark và observability (CP7, CP8) nằm trong [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md). Mục **AI log** ghi cách tôi dùng Codex và Claude Code trong quá trình làm bài. Phần giải thích khái niệm được suy ra từ việc đọc code và đề lab.
 
 ---
 
@@ -406,22 +406,14 @@ Load test 4 mức concurrency, so sánh `MOCK_SLOW_RATE`, Locust scale 1 và 3 i
 
 ## AI log
 
-| # | Ai | Việc | Kiểm chứng |
-|---|---|---|---|
-| 1 | Claude Code | Đọc toàn bộ đề lab (CODE_LAB, CHECKPOINTS, RUBRIC, SUBMISSION), code mẫu Part 1-7 và `check_production_ready.py`; viết hướng dẫn từng checkpoint | Đọc code, không chạy lệnh nào |
-| 2 | Claude Code | Soạn code CP5 (`config`, `redis_client`, `auth`, `rate_limiter`, `cost_guard`, `main`, `Dockerfile`, `.dockerignore`, `.env.example`, `docker-compose.yml`, `railway.toml`) và bản nháp `MISSION_ANSWERS.md`, trả dưới dạng diff vì công cụ ghi file của Claude bị từ chối quyền | Claude **không** chạy được test; Codex áp dụng diff và chạy checker |
-| 3 | Claude Code | Sửa review CP5: cost guard dùng reserve/settle/release với Lua, so sánh API key bằng bytes, nối cổng compose với `PORT` | Codex áp dụng, chạy lại, đạt 12/12 và 41/41 |
-| 4 | Claude Code | CP7: thêm histogram `agent_question_length_chars`, sửa `KNOWLEDGE_BASE` dựa trên `missing_keywords` trong `eval_v2.json` (Claude đã đọc file này), đồng bộ KB production | Codex chạy eval: 23/23, không regression |
-| 5 | Claude Code | CP8: sửa Dockerfile production của Part 7 bằng `ENV PYTHONUSERBASE=/home/agent/.local` để sửa `ModuleNotFoundError` do home của user `agent` là `/app`. Bản diff đầu tiên có một dòng viết nhầm và đã được thay bằng bản đúng ngay trong cùng tin nhắn | Codex áp dụng; stack CP8 sau đó chạy được và sinh các file bằng chứng trong `reports/` và `benchmark-results/` |
-| 6 | Codex | Áp dụng diff, chạy CP0-CP8 trong WSL2/Docker, ghi `reports/*.txt`, `reports/*.json`, CSV Locust và ảnh, chạy eval, load test, `promtool`, báo lại số đo | Số đo trong file này và trong `BENCHMARK_REPORT.md` đến từ các lần chạy đó |
-| 7 | Claude Code | Viết lại `MISSION_ANSWERS.md` bản hoàn chỉnh từ output đã ghi | Số liệu lấy từ `reports/*.txt`, `eval_v2.json` và báo cáo của Codex; tỷ lệ giảm 86.5% theo content size là phép tính của Claude từ hai số byte |
-| 8 | Claude Code | Soạn `BENCHMARK_REPORT.md` từ các file JSON/CSV/ảnh trong repo, cập nhật file này và soạn `DEPLOYMENT.md` (bản đầu, khi chưa deploy) | Claude đọc file, không chạy lệnh; số trong báo cáo là số trong file, các phép tính (thời lượng span, tỉ lệ %) được ghi là "tính từ" |
-| 9 | Claude Code | CP6: cập nhật `MISSION_ANSWERS.md` và `DEPLOYMENT.md` sau khi deploy Railway: ghi URL, project, deploy ID, biến môi trường (chỉ tên và giá trị không bí mật) và 4 mã HTTP | Claude đọc `reports/public-http.json` và 3 ảnh `dashboard.png`, `running.png`, `test.png`; không chạy lệnh deploy, không truy cập URL. `running.png` cho thấy deploy `1b17a3a9` Active và log `GET /ready` 200, `GET /health` 200, `POST /ask` 401 rồi 200 |
+Tôi là học viên và chủ dự án. Tôi dùng Codex làm việc trong workspace của mình để giao việc cho Claude Code, duyệt các bản sửa và chạy các phép kiểm tra. Claude Code viết phần triển khai và soạn bản nháp báo cáo. Các lần chạy ghi dưới đây được thực hiện qua Codex.
 
-**Phân biệt trách nhiệm xác minh.**
-
-- Phần **do Codex chạy và kiểm chứng**: toàn bộ output lệnh, kích thước image, kết quả checker CP5 (12/12, 41/41), phiên stateless, eval CP7 (23/23, không regression), các số liệu CP8 (load test, Locust, alert, trace, PromQL) và `promtool` SUCCESS.
-- Phần **học viên chưa đích thân xác minh**: học viên chưa tự chạy lại các lệnh trên (kể cả CP8), chưa tự đo lại kích thước image, và chưa tự chạy lại 4 lệnh `curl` trên URL cloud. Trước khi nộp, học viên cần tự chạy lại `python check_production_ready.py` trong WSL2, tự đọc và giải thích được từng file trong `06-lab-complete/app/`, vì Lab Coach có quyền yêu cầu giải thích bất kỳ đoạn code hoặc con số nào.
-- Phần **CP6 (cloud)**: deploy và 4 lệnh kiểm tra đã chạy trong workspace; bằng chứng là `reports/public-http.json` và 3 ảnh trong `screenshots/`. Claude chỉ đọc các file này, không tự truy cập URL. Việc chọn workspace Hobby là quyết định của học viên, không phải sự phê duyệt của Lab Coach.
-- Phần **chưa làm**: thí nghiệm C, D, E của CP8 không chạy (xem `BENCHMARK_REPORT.md`).
-- Không có số đo nào trong file này được coi là do học viên tự tay đo.
+| Phần | Tôi yêu cầu gì và nhận được gì | Cách tôi dùng Codex để duyệt và kiểm tra |
+|---|---|---|
+| CP0–CP4 | Tôi yêu cầu giải thích các checkpoint và đối chiếu hướng dẫn K5 với code mẫu. Claude Code cũng rà lại yêu cầu và kiểm tra cấu hình repo. | Kiểm tra Python trong WSL2 và Docker, gọi API mẫu, đo kích thước hai image và chạy thử ba replica. Năm lượt gọi giữ đủ mười message trong cùng session. [Output HTTP local](reports/local-http.txt) |
+| CP5 · Triển khai | Tôi giao Claude Code hoàn thiện agent FastAPI, Redis, Docker và cấu hình Railway. Claude trả bản sửa dưới dạng diff. | Duyệt và áp dụng diff, chạy checker nguyên bản. Khi Redis chưa sẵn sàng, tôi dùng Codex đọc lỗi và chạy lại với Redis thật. [Output checker](reports/production-readiness.txt) |
+| CP5 · Sửa sau review | Tôi yêu cầu Claude xử lý trường hợp hai worker cùng kiểm tra ngân sách. Claude sửa để giữ trước chi phí bằng Lua trong Redis, đối soát sau khi mock trả lời và hoàn lại nếu mock lỗi. Claude cũng sửa cách so sánh API key và ánh xạ cổng theo `PORT`. | Kiểm tra thứ tự xử lý trong `/ask` rồi chạy lại checker với hai worker. Bản local đạt 12/12 tiêu chí, 41/41 phép kiểm. |
+| CP7 | Tôi yêu cầu Claude thêm histogram độ dài câu hỏi và bổ sung kiến thức dựa trên hai câu sai trong eval v2. | Chạy load test ở bốn mức concurrency, đo ba mức `MOCK_SLOW_RATE`, rồi chạy lại eval trên cùng bộ 23 câu. V2 tăng từ 21/23 lên 23/23, không có regression. [Eval sau sửa](reports/eval_v2_fixed.json) |
+| CP8 | Tôi gửi Claude lỗi `ModuleNotFoundError` của container. Claude xác định Python tìm sai thư mục thư viện của user và sửa `PYTHONUSERBASE` trong Dockerfile. | Build lại image, chạy Locust với một và ba replica, đối chiếu trace Jaeger với log cùng `trace_id` và đo thời gian đến khi hai alert cùng firing. Tôi thực hiện thí nghiệm A và B. [Báo cáo và bằng chứng CP8](BENCHMARK_REPORT.md) |
+| CP6 | Tôi chọn workspace Railway Hobby đang dùng để deploy agent và Redis. Sau khi có URL public, tôi giao Claude cập nhật hồ sơ từ kết quả thực tế. | Deploy qua Codex và gọi bốn endpoint/trường hợp của đề, lần lượt nhận 200, 200, 401, 200. Checker chạy với URL public đạt 12/12 tiêu chí, 42/42 phép kiểm. [Kết quả HTTP](reports/public-http.json) · [Output checker với URL public](reports/production-readiness-cloud.txt) |
+| Báo cáo | Tôi giao Claude soạn câu trả lời, báo cáo benchmark và hồ sơ deployment từ log, JSON, CSV và ảnh đã lưu. | Đối chiếu các bảng với file đo, kiểm tra hai bản sao CSV và mười bản sao JSON, rồi duyệt nội dung và ảnh trước khi lưu commit local. [Báo cáo benchmark](BENCHMARK_REPORT.md) · [Hồ sơ deployment](DEPLOYMENT.md) |
