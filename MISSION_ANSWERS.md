@@ -235,7 +235,12 @@ Trả lời câu hỏi của đề:
 
 ### Exercise 4.4 — Cost guard
 
-Kiểm tra budget **trước** khi gọi LLM (vượt thì trả 402) và ghi chi phí theo token **sau** khi gọi. Bản mẫu lưu trong RAM nên mất khi restart và không chia sẻ giữa các worker; bản Part 6 chuyển sang Redis (xem Part 6).
+Bản mẫu Part 4 theo dõi ngân sách ngày trong RAM của từng process. Với yêu cầu **10 USD cho mỗi user trong mỗi tháng** của Exercise 4.4, tôi đề xuất cách xử lý sau.
+
+1. Lấy `user_id` từ JWT đã xác thực. Tạo khóa Redis dạng `budget:{user_id}:YYYY-MM` theo tháng UTC lúc nhận request. Các worker dùng chung khóa của user trong tháng đó.
+2. Trước khi gọi LLM, ước tính mức phí tối đa từ token đầu vào và giới hạn token đầu ra. Dùng một script Lua trong Redis để kiểm tra và giữ chỗ nguyên tử. Nếu tổng phí đã chi, phí đang giữ chỗ và phí của request mới vượt 10 USD, API trả `402`. Ví dụ, khi đã chi 9,80 USD và không có khoản giữ chỗ, request cần giữ 0,30 USD sẽ bị chặn ngay cả khi user vẫn còn lượt theo rate limit.
+3. Sau khi LLM trả lời, tính phí thực tế theo số token, ghi nhận phí và hoàn phần giữ chỗ còn dư vào đúng khóa ban đầu. Nếu request lỗi trước khi phát sinh phí thì hoàn toàn bộ phần giữ chỗ.
+4. Hạn mức được cấp lại lúc **00:00 UTC ngày đầu tháng mới**. Request mới dùng khóa tháng mới, với chi phí ban đầu bằng 0. Request bắt đầu trước nửa đêm vẫn đối soát vào khóa tháng cũ. Có thể đặt TTL để dọn khóa cũ sau thời gian đối soát.
 
 Rate limit bảo vệ **tốc độ** (chống spam). Cost guard bảo vệ **tiền**: vài request rất dài vẫn có thể đốt hết budget mà không vượt rate limit. Cần cả hai.
 
@@ -417,3 +422,4 @@ Tôi là học viên và chủ dự án. Tôi dùng Codex làm việc trong work
 | CP8 | Tôi gửi Claude lỗi `ModuleNotFoundError` của container. Claude xác định Python tìm sai thư mục thư viện của user và sửa `PYTHONUSERBASE` trong Dockerfile. | Build lại image, chạy Locust với một và ba replica, đối chiếu trace Jaeger với log cùng `trace_id` và đo thời gian đến khi hai alert cùng firing. Tôi thực hiện thí nghiệm A và B. [Báo cáo và bằng chứng CP8](BENCHMARK_REPORT.md) |
 | CP6 | Tôi chọn workspace Railway Hobby đang dùng để deploy agent và Redis. Sau khi có URL public, tôi giao Claude cập nhật hồ sơ từ kết quả thực tế. | Deploy qua Codex và gọi bốn endpoint/trường hợp của đề, lần lượt nhận 200, 200, 401, 200. Checker chạy với URL public đạt 12/12 tiêu chí, 42/42 phép kiểm. [Kết quả HTTP](reports/public-http.json) · [Output checker với URL public](reports/production-readiness-cloud.txt) |
 | Báo cáo | Tôi giao Claude soạn câu trả lời, báo cáo benchmark và hồ sơ deployment từ log, JSON, CSV và ảnh đã lưu. | Đối chiếu các bảng với file đo, kiểm tra hai bản sao CSV và mười bản sao JSON, rồi duyệt nội dung và ảnh trước khi lưu commit local. [Báo cáo benchmark](BENCHMARK_REPORT.md) · [Hồ sơ deployment](DEPLOYMENT.md) |
+| Exercise 4.4 sau góp ý | Tôi dùng Codex rà lại lời giải ngân sách theo user và theo tháng. | Đối chiếu với Exercise 4.4 và yêu cầu CP3, bổ sung thiết kế khóa Redis, ví dụ vượt 10 USD và thời điểm chuyển tháng UTC vào phần trả lời. |
