@@ -1,0 +1,84 @@
+{
+  "unix_time": 1795596133.8921025,
+  "metrics": {
+    "rps_by_instance": {
+      "query": "sum by(instance)(rate(http_requests_total{route=\"/ask\"}[1m]))",
+      "result": [
+        {
+          "metric": {
+            "instance": "172.20.0.7:8000"
+          },
+          "value": [
+            1795596133.892,
+            "16.43110905159098"
+          ]
+        },
+        {
+          "metric": {
+            "instance": "172.20.0.8:8000"
+          },
+          "value": [
+            1795596133.892,
+            "15.319743647282598"
+          ]
+        },
+        {
+          "metric": {
+            "instance": "172.20.0.9:8000"
+          },
+          "value": [
+            1795596133.892,
+            "15.25763697434692"
+          ]
+        }
+      ]
+    },
+    "mean_seconds": {
+      "query": "sum(rate(http_request_duration_seconds_sum{route=\"/ask\"}[1m])) / sum(rate(http_request_duration_seconds_count{route=\"/ask\"}[1m]))",
+      "result": [
+        {
+          "metric": {},
+          "value": [
+            1795596133.892,
+            "0.27970865249079746"
+          ]
+        }
+      ]
+    },
+    "p95_seconds": {
+      "query": "histogram_quantile(0.95,sum by(le)(rate(http_request_duration_seconds_bucket{route=\"/ask\"}[1m])))",
+      "result": [
+        {
+          "metric": {},
+          "value": [
+            1795596133.892,
+            "0.6517114750627048"
+          ]
+        }
+      ]
+    },
+    "tokens_per_sec": {
+      "query": "sum by(type)(rate(llm_tokens_total[1m]))",
+      "result": [
+        {
+          "metric": {
+            "type": "input"
+          },
+          "value": [
+            1795596133.892,
+            "3603.370668697414"
+          ]
+        },
+        {
+          "metric": {
+            "type": "output"
+          },
+          "value": [
+            1795596133.892,
+            "1881.4415164398451"
+          ]
+        }
+      ]
+    }
+  }
+}

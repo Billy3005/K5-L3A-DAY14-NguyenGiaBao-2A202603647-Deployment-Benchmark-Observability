@@ -1,0 +1,18 @@
+{
+  "change_started": "2026-11-25T08:43:44.5276731+00:00",
+  "events": {
+    "AgentHighErrorRate": {
+      "first_observed": "2026-11-25T08:45:20.4012475+00:00",
+      "elapsed_seconds": 95.9,
+      "active_since": "2026-11-25T08:44:17.401817116Z"
+    },
+    "AgentHighLatencyP95": {
+      "first_observed": "2026-11-25T08:46:11.9120730+00:00",
+      "elapsed_seconds": 147.4,
+      "active_since": "2026-11-25T08:44:12.401817116Z"
+    }
+  },
+  "both_firing": true,
+  "mock_error_rate": 0.2,
+  "mock_slow_rate": 0.3
+}
