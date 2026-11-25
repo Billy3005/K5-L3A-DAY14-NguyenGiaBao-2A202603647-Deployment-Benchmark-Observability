@@ -1,0 +1,8 @@
+{
+  "tested_at": "2026-11-25T09:32:30.4553284+00:00",
+  "base": "https://agent-production-f6303733.up.railway.app",
+  "health": "200",
+  "ready": "200",
+  "ask_without_key": "401",
+  "ask_with_key": "200"
+}

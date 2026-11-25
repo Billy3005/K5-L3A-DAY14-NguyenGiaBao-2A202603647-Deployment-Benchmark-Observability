@@ -117,7 +117,26 @@ Kết quả test qua Nginx cổng **80**: `GET /health` trả 200 (response có 
 
 ### Trạng thái
 
-**Chưa deploy.** Railway CLI đã đăng nhập. Workspace hiện tại dùng gói HOBBY và bài lab đang chờ quyết định về workspace triển khai. Hiện **chưa có URL public**, chưa chạy 4 lệnh tự kiểm và chưa có ảnh cloud `screenshots/dashboard.png`, `running.png`, `test.png`. Lệnh deploy, danh sách biến môi trường (không kèm giá trị), 4 lệnh `curl` để chạy khi có URL và tên ảnh cần chụp nằm trong [DEPLOYMENT.md](DEPLOYMENT.md). Không ghi URL hay mã HTTP nào khi chưa chạy.
+**Đã deploy.** Agent Part 6 chạy trên Railway với URL public **https://agent-production-f6303733.up.railway.app**.
+
+| Mục | Giá trị |
+|---|---|
+| Project / environment | `k5-day14-deployment-bao` / `production` |
+| Service | `agent` (Online) và Redis (Online, có `redis-volume`) |
+| Deploy ID | `1b17a3a9-e159-4582-bdf3-67f02c204094` (Active) |
+| Deploy path | `06-lab-complete` |
+| Workspace | Gói Railway **Hobby** đang có sẵn, do học viên chọn. Báo cáo này không ghi nhận Lab Coach đã phê duyệt hay xác nhận lựa chọn đó |
+
+Kết quả 4 lệnh tự kiểm, ghi trong [reports/public-http.json](reports/public-http.json) (`tested_at` `2026-11-25T09:32:30.4553284+00:00`):
+
+| Lệnh | Mong đợi | Kết quả |
+|---|---|---|
+| `GET /health` | 200 | **200** |
+| `GET /ready` | 200 | **200** |
+| `POST /ask` không key | 401 | **401** |
+| `POST /ask` có key | 200 | **200** |
+
+Ảnh: [dashboard.png](screenshots/dashboard.png) (project, service `agent` và Redis Online), [running.png](screenshots/running.png) (deploy `1b17a3a9` Active, log request), [test.png](screenshots/test.png) (ảnh JSON kết quả `curl` ở `reports/public-http.json`, không phải terminal). Lệnh deploy và biến môi trường (chỉ tên, không có giá trị bí mật) nằm trong [DEPLOYMENT.md](DEPLOYMENT.md).
 
 Cấu hình sẵn sàng: `06-lab-complete/railway.toml` đặt `builder = "DOCKERFILE"` và `healthcheckPath = "/health"`; `CMD` của Dockerfile đọc `${PORT:-8000}`. Checker tiêu chí 12 đã ✅ ở mức cấu hình.
 
@@ -396,11 +415,13 @@ Load test 4 mức concurrency, so sánh `MOCK_SLOW_RATE`, Locust scale 1 và 3 i
 | 5 | Claude Code | CP8: sửa Dockerfile production của Part 7 bằng `ENV PYTHONUSERBASE=/home/agent/.local` để sửa `ModuleNotFoundError` do home của user `agent` là `/app`. Bản diff đầu tiên có một dòng viết nhầm và đã được thay bằng bản đúng ngay trong cùng tin nhắn | Codex áp dụng; stack CP8 sau đó chạy được và sinh các file bằng chứng trong `reports/` và `benchmark-results/` |
 | 6 | Codex | Áp dụng diff, chạy CP0-CP8 trong WSL2/Docker, ghi `reports/*.txt`, `reports/*.json`, CSV Locust và ảnh, chạy eval, load test, `promtool`, báo lại số đo | Số đo trong file này và trong `BENCHMARK_REPORT.md` đến từ các lần chạy đó |
 | 7 | Claude Code | Viết lại `MISSION_ANSWERS.md` bản hoàn chỉnh từ output đã ghi | Số liệu lấy từ `reports/*.txt`, `eval_v2.json` và báo cáo của Codex; tỷ lệ giảm 86.5% theo content size là phép tính của Claude từ hai số byte |
-| 8 | Claude Code | Soạn `BENCHMARK_REPORT.md` từ các file JSON/CSV/ảnh trong repo, cập nhật file này và soạn `DEPLOYMENT.md` (chưa có URL) | Claude đọc file, không chạy lệnh; số trong báo cáo là số trong file, các phép tính (thời lượng span, tỉ lệ %) được ghi là "tính từ" |
+| 8 | Claude Code | Soạn `BENCHMARK_REPORT.md` từ các file JSON/CSV/ảnh trong repo, cập nhật file này và soạn `DEPLOYMENT.md` (bản đầu, khi chưa deploy) | Claude đọc file, không chạy lệnh; số trong báo cáo là số trong file, các phép tính (thời lượng span, tỉ lệ %) được ghi là "tính từ" |
+| 9 | Claude Code | CP6: cập nhật `MISSION_ANSWERS.md` và `DEPLOYMENT.md` sau khi deploy Railway: ghi URL, project, deploy ID, biến môi trường (chỉ tên và giá trị không bí mật) và 4 mã HTTP | Claude đọc `reports/public-http.json` và 3 ảnh `dashboard.png`, `running.png`, `test.png`; không chạy lệnh deploy, không truy cập URL. `running.png` cho thấy deploy `1b17a3a9` Active và log `GET /ready` 200, `GET /health` 200, `POST /ask` 401 rồi 200 |
 
 **Phân biệt trách nhiệm xác minh.**
 
 - Phần **do Codex chạy và kiểm chứng**: toàn bộ output lệnh, kích thước image, kết quả checker CP5 (12/12, 41/41), phiên stateless, eval CP7 (23/23, không regression), các số liệu CP8 (load test, Locust, alert, trace, PromQL) và `promtool` SUCCESS.
-- Phần **học viên chưa đích thân xác minh**: học viên chưa tự chạy lại các lệnh trên (kể cả CP8), chưa tự đo lại kích thước image, và chưa xác minh URL cloud. Trước khi nộp, học viên cần tự chạy lại `python check_production_ready.py` trong WSL2, tự đọc và giải thích được từng file trong `06-lab-complete/app/`, vì Lab Coach có quyền yêu cầu giải thích bất kỳ đoạn code hoặc con số nào.
-- Phần **chưa làm**: deploy lên cloud (đang chọn workspace phù hợp; chưa có URL và ảnh cloud). Thí nghiệm C, D, E của CP8 không chạy (xem `BENCHMARK_REPORT.md`).
+- Phần **học viên chưa đích thân xác minh**: học viên chưa tự chạy lại các lệnh trên (kể cả CP8), chưa tự đo lại kích thước image, và chưa tự chạy lại 4 lệnh `curl` trên URL cloud. Trước khi nộp, học viên cần tự chạy lại `python check_production_ready.py` trong WSL2, tự đọc và giải thích được từng file trong `06-lab-complete/app/`, vì Lab Coach có quyền yêu cầu giải thích bất kỳ đoạn code hoặc con số nào.
+- Phần **CP6 (cloud)**: deploy và 4 lệnh kiểm tra đã chạy trong workspace; bằng chứng là `reports/public-http.json` và 3 ảnh trong `screenshots/`. Claude chỉ đọc các file này, không tự truy cập URL. Việc chọn workspace Hobby là quyết định của học viên, không phải sự phê duyệt của Lab Coach.
+- Phần **chưa làm**: thí nghiệm C, D, E của CP8 không chạy (xem `BENCHMARK_REPORT.md`).
 - Không có số đo nào trong file này được coi là do học viên tự tay đo.
